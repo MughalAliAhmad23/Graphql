@@ -2,27 +2,25 @@
 #
 # https://gqlgen.com/getting-started/
 
-type Todo {
-  id: ID!
-  text: String!
-  done: Boolean!
-  user: User!
-}
-
-type User {
-  id: ID!
-  name: String!
+type JokeResp {
+  id: ID
+  text: String
 }
 
 type Query {
-  todos: [Todo!]!
+  joke(id:ID!):JokeResp!
+  jokes:[JokeResp!]!
 }
 
-input NewTodo {
+input JokeInput {
   text: String!
-  userId: String!
+}
+
+type Generated {
+  message: String!
 }
 
 type Mutation {
-  createTodo(input: NewTodo!): Todo!
+  createJoke(input: JokeInput!): JokeResp!
+  migration:Generated!
 }

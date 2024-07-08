@@ -1,18 +1,23 @@
 package main
 
 import (
+	"Gqlgen/db"
 	"Gqlgen/graph"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	
 )
 
 const defaultPort = "8080"
 
 func main() {
+	db.Connect()
+	fmt.Println("server is connected")
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
