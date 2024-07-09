@@ -11,8 +11,8 @@ type JokeInput struct {
 }
 
 type JokeResp struct {
-	ID   *string `json:"id"`
-	Text *string `json:"text"`
+	ID   *string `json:"id,omitempty"`
+	Text *string `json:"text,omitempty"`
 }
 
 type Mutation struct {

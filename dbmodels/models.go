@@ -1,10 +1,14 @@
 package dbmodels
 
+import (
+	"gorm.io/gorm"
+)
+
 type Joke struct {
-	Id   *int    `db:"id"`
-	Text *string `db:"text"`
+	gorm.Model
+	Text *string `gorm:"not null"`
 }
 
 type JokeInput struct {
-	Text string `db:"text"`
+	Text string `gorm:"not null"`
 }

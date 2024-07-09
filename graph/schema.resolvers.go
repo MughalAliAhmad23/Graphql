@@ -7,6 +7,7 @@ package graph
 import (
 	"Gqlgen/controllers"
 	"Gqlgen/db"
+	"Gqlgen/dbmodels"
 	"Gqlgen/graph/model"
 	"context"
 	"fmt"
@@ -14,48 +15,40 @@ import (
 
 // CreateTodo is the resolver for the createTodo field.
 func (r *mutationResolver) CreateJoke(ctx context.Context, input model.JokeInput) (*model.JokeResp, error) {
-	joke, err := controllers.CreateNewJoke(input)
-	if err != nil {
-		return nil, err
-	}
+
+	joke := controllers.CreateNewJoke(input)
+
 	return joke, nil
 }
 
 // Migration is the resolver for the migration field.
 func (r *mutationResolver) Migration(ctx context.Context) (*model.Generated, error) {
+
 	var migResp model.Generated
 
 	migResp.Message = "Table has been generated!"
-	joke := `CREATE TABLE IF NOT EXISTS MyJoke(
-	id serial PRIMARY KEY,
-	joke VARCHAR(50) NOT NULL
-	);`
-	fmt.Println(joke)
-	_, err := db.DbConn.Exec(joke)
-	fmt.Println("i am in dbconn execution process")
+
+	err := db.DbConn.AutoMigrate(&dbmodels.Joke{})
 	if err != nil {
-		//fmt.Errorf(err.Error())
-		return nil, err
+		fmt.Println("Error in migration function is:", err)
 	}
-	fmt.Println("i passed the execution process")
+
 	return &migResp, nil
 }
 
 // Joke is the resolver for the joke field.
 func (r *queryResolver) Joke(ctx context.Context, id string) (*model.JokeResp, error) {
-	joke, err := controllers.GetAJoke(id)
-	if err != nil {
-		return nil, err
-	}
+
+	joke := controllers.GetAJoke(id)
+
 	return joke, nil
 }
 
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Jokes(ctx context.Context) ([]*model.JokeResp, error) {
-	jokes, err := controllers.GetAllJoke()
-	if err != nil {
-		return nil, err
-	}
+
+	jokes := controllers.GetAllJoke()
+
 	return jokes, nil
 }
 

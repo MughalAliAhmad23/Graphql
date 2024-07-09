@@ -1,22 +1,20 @@
 package db
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-var DbConn *sql.DB
+var DbConn *gorm.DB
 
-func Connect() (*sql.DB, error) {
-	var err error
+func Connect() (*gorm.DB, error) {
 
-	err = godotenv.Load(".env")
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
@@ -29,15 +27,20 @@ func Connect() (*sql.DB, error) {
 
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", dbHost, dbPort, dbUser, dbPassword, dbName)
 
-	DbConn, err = sql.Open("postgres", psqlInfo)
+	DbConn, err = gorm.Open(postgres.Open(psqlInfo), &gorm.Config{})
 	if err != nil {
 		fmt.Println("Error connecting to datbase...", err)
 		return nil, err
 	}
 
-	err = DbConn.Ping()
+	sqlDb, err := DbConn.DB()
 	if err != nil {
-		return nil, err
+		log.Fatalf("Failed to get Db instanse %v", err)
+	}
+
+	err = sqlDb.Ping()
+	if err != nil {
+		log.Fatalf("Failed to ping database %v", err)
 	}
 
 	return DbConn, nil

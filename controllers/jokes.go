@@ -4,64 +4,66 @@ import (
 	"Gqlgen/db"
 	"Gqlgen/dbmodels"
 	"Gqlgen/graph/model"
+	"fmt"
 	"strconv"
 )
 
-func CreateNewJoke(input model.JokeInput) (*model.JokeResp, error) {
+func CreateNewJoke(input model.JokeInput) *model.JokeResp {
 
-	var joke dbmodels.Joke
-
-	query := "INSERT INTO myjoke (joke) VALUES ($1) RETURNING id,joke"
-	err := db.DbConn.QueryRow(query, input.Text).Scan(&joke.Id, &joke.Text)
-	if err != nil {
-		return nil, err
+	joke := dbmodels.Joke{
+		Text: &input.Text,
 	}
-	var jsonJoke model.JokeResp
-	convertedId := strconv.Itoa(*joke.Id)
-	jsonJoke.ID = &convertedId
-	jsonJoke.Text = joke.Text
-	return &jsonJoke, err
+
+	db.DbConn.Create(&joke)
+
+	newId := strconv.Itoa(int(joke.ID))
+	jsonJoke := &model.JokeResp{
+		ID:   &newId,
+		Text: joke.Text,
+	}
+
+	return jsonJoke
 
 }
 
-func GetAllJoke() ([]*model.JokeResp, error) {
+func GetAllJoke() []*model.JokeResp {
 
-	query := "SELECT * FROM myjoke"
-	rows, err := db.DbConn.Query(query)
-	if err != nil {
-		return nil, err
+	jokes := []dbmodels.Joke{}
+
+	resp := db.DbConn.Find(&jokes)
+	if resp.Error != nil {
+		fmt.Println("Error:", resp.Error)
 	}
 
-	var jokes []*model.JokeResp
+	jsonJokes := []*model.JokeResp{}
 
-	for rows.Next() {
-		var joke dbmodels.Joke
-		err := rows.Scan(&joke.Id, &joke.Text)
-		if err != nil {
-			return nil, err
+	for _, dbJoke := range jokes {
+		newId := strconv.Itoa(int(dbJoke.ID))
+		joke := &model.JokeResp{
+			ID:   &newId,
+			Text: dbJoke.Text,
 		}
-		var jsonJoke model.JokeResp
-		convertedId := strconv.Itoa(*joke.Id)
-		jsonJoke.ID = &convertedId
-		jsonJoke.Text = joke.Text
-		jokes = append(jokes, &jsonJoke)
+		jsonJokes = append(jsonJokes, joke)
 	}
-	return jokes, nil
+
+	return jsonJokes
+
 }
 
-func GetAJoke(id string) (*model.JokeResp, error) {
+func GetAJoke(id string) *model.JokeResp {
 
-	var joke dbmodels.Joke
+	joke := &dbmodels.Joke{}
 
-	query := ("SELECT * FROM myjoke WHERE id = $1")
-	err := db.DbConn.QueryRow(query, id).Scan(&joke.Id, &joke.Text)
-	if err != nil {
-		return nil, err
+	resp := db.DbConn.Where("id=?", id).First(joke)
+	if resp.Error != nil {
+		fmt.Println("Error", resp.Error)
 	}
-	var jsonJoke model.JokeResp
-	convertedId := strconv.Itoa(*joke.Id)
-	jsonJoke.ID = &convertedId
-	jsonJoke.Text = joke.Text
 
-	return &jsonJoke, nil
+	newId := strconv.Itoa(int(joke.ID))
+	jsonJoke := model.JokeResp{
+		ID:   &newId,
+		Text: joke.Text,
+	}
+
+	return &jsonJoke
 }
