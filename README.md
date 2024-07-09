@@ -17,7 +17,7 @@ Secondly user enter some random jokes enters in database using CreateJoke mutati
 With the help of queries like joke and jokes user can retrieve a single joke or get all jokes stored in the database with the choice in hand of retrieving id with created joke/jokes or not.
 For my own here are some examples of queries and mutation that Graphql made:
 
-URL for Graphql: http://localhost:8080/query
+URL for Graphql: http://localhost:8080/query in postman
 
 mutation Migration {
     migration {
